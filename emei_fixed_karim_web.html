@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EMEI — El Mordjene Export Intelligence</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f172a;--bg2:#1e293b;--bg3:#334155;
+  --border:#334155;--border2:#475569;
+  --text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;
+  --green:#10b981;--green2:#059669;--gbg:rgba(16,185,129,.12);
+  --blue:#3b82f6;--bbg:rgba(59,130,246,.12);
+  --orange:#f59e0b;--obg:rgba(245,158,11,.12);
+  --red:#ef4444;--rbg:rgba(239,68,68,.12);
+  --purple:#8b5cf6;--pbg:rgba(139,92,246,.12);
+  --gold:#c9a84c;
+  --r:8px;--rl:12px;--rxl:16px;
+  --sh:0 4px 24px rgba(0,0,0,.4);
+  --font:'Inter',-apple-system,sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden;font-size:13px}
+body.light{--bg:#f1f5f9;--bg2:#fff;--bg3:#e2e8f0;--border:#e2e8f0;--border2:#cbd5e1;--text:#0f172a;--text2:#475569;--text3:#94a3b8}
+
+/* LOGIN */
+.login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column}
+.login-screen.hidden{display:none}
+.login-glow{position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(16,185,129,.15),transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%)}
+.login-box{background:rgba(30,41,59,.9);border:1px solid rgba(16,185,129,.2);border-radius:24px;padding:40px;width:380px;position:relative;backdrop-filter:blur(20px);box-shadow:0 0 60px rgba(16,185,129,.1)}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:28px;justify-content:center}
+.login-logo-icon{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--green),#06b6d4);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff}
+.login-logo-name{font-size:20px;font-weight:700;color:#fff}
+.login-logo-sub{font-size:12px;color:var(--text3)}
+.login-title{font-size:22px;font-weight:700;color:#fff;margin-bottom:6px;text-align:center}
+.login-sub{font-size:13px;color:var(--text2);text-align:center;margin-bottom:28px}
+.login-fg{margin-bottom:16px}
+.login-lbl{font-size:12px;color:var(--text2);margin-bottom:6px;display:block;font-weight:500}
+.login-input{width:100%;padding:11px 14px;border:1px solid rgba(71,85,105,.5);border-radius:10px;background:rgba(15,23,42,.6);color:#fff;font-size:14px;font-family:var(--font);transition:border .2s}
+.login-input:focus{outline:none;border-color:var(--green)}
+.login-role{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
+.role-btn{padding:10px;border-radius:10px;border:1px solid rgba(71,85,105,.5);background:none;color:var(--text2);cursor:pointer;font-size:12px;text-align:center;transition:all .2s}
+.role-btn:hover,.role-btn.active{border-color:var(--green);background:var(--gbg);color:var(--green)}
+.login-btn{width:100%;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--green),#06b6d4);color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .2s;font-family:var(--font)}
+.login-btn:hover{opacity:.9}
+.login-footer{text-align:center;margin-top:20px;font-size:12px;color:var(--text3)}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;background:var(--bg2);border-bottom:1px solid var(--border);height:50px;flex-shrink:0;position:sticky;top:0;z-index:50}
+.brand{display:flex;align-items:center;gap:8px;padding:0 16px;height:100%;border-right:1px solid var(--border);min-width:210px;cursor:pointer}
+.brand-icon{width:26px;height:26px;border-radius:6px;background:linear-gradient(135deg,var(--green),#06b6d4);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+.brand-name{font-size:13px;font-weight:600}
+.brand-sub{font-size:10px;color:var(--text3)}
+.tabs{display:flex;height:100%}
+.tab{padding:0 16px;display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;border:none;background:none;color:var(--text2);border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
+.tab:hover{color:var(--text);background:rgba(255,255,255,.03)}
+.tab.active{color:var(--green);border-bottom-color:var(--green);font-weight:500}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:6px;padding:0 12px}
+.ib{width:30px;height:30px;border-radius:var(--r);border:1px solid var(--border);background:none;cursor:pointer;color:var(--text2);display:flex;align-items:center;justify-content:center;font-size:14px;position:relative;transition:all .15s}
+.ib:hover{background:var(--bg3);color:var(--text)}
+.ndot{position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--red);border:1px solid var(--bg2)}
+.av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--green),#06b6d4);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;cursor:pointer}
+
+/* LAYOUT */
+.layout{display:flex;flex:1;overflow:hidden}
+.sidebar{width:210px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;transition:width .2s}
+.sidebar.collapsed{width:50px}
+.sidebar.collapsed .slbl,.sidebar.collapsed .stxt,.sidebar.collapsed .scnt{display:none}
+.sidebar.collapsed .sitem{justify-content:center;padding:7px 0}
+.ssec{padding:10px 8px 2px}
+.slbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;padding:0 8px;margin-bottom:4px}
+.sitem{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--r);cursor:pointer;font-size:13px;color:var(--text2);border:none;background:none;width:100%;text-align:left;transition:all .12s}
+.sitem:hover{background:var(--bg3);color:var(--text)}
+.sitem.active{background:var(--gbg);color:var(--green);font-weight:500}
+.sico{font-size:15px;width:18px;text-align:center;flex-shrink:0}
+.scnt{margin-left:auto;background:var(--rbg);color:var(--red);font-size:10px;padding:1px 5px;border-radius:10px}
+.sdiv{height:1px;background:var(--border);margin:6px 8px}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto}
+.page{display:none;padding:20px;animation:fi .2s ease}
+.page.active{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* UI */
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
+.pt{font-size:17px;font-weight:600}
+.ps2{font-size:12px;color:var(--text2);margin-top:2px}
+.btn{padding:7px 13px;border-radius:var(--r);border:1px solid var(--border);background:var(--bg3);font-size:12px;cursor:pointer;color:var(--text);display:inline-flex;align-items:center;gap:5px;transition:all .15s;font-family:var(--font)}
+.btn:hover{background:var(--border2)}
+.bg-btn{background:var(--green);border-color:var(--green);color:#fff}.bg-btn:hover{background:var(--green2)}
+.bb-btn{background:var(--blue);border-color:var(--blue);color:#fff}
+.sm{padding:5px 10px;font-size:11px}.xs{padding:3px 8px;font-size:11px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:16px;margin-bottom:14px}
+.ct{font-size:13px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.sg{display:grid;gap:10px;margin-bottom:14px}
+.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:1fr 1fr}
+.sc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:12px}
+.sl{font-size:11px;color:var(--text3);margin-bottom:4px}.sv{font-size:20px;font-weight:600}.ss{margin-top:4px}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500}
+.bg{background:var(--gbg);color:var(--green)}.bb{background:var(--bbg);color:var(--blue)}.bo{background:var(--obg);color:var(--orange)}.br{background:var(--rbg);color:var(--red)}.bp{background:var(--pbg);color:var(--purple)}.bgr{background:var(--bg3);color:var(--text2)}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{text-align:left;padding:8px 10px;font-weight:500;color:var(--text3);border-bottom:1px solid var(--border);font-size:11px;text-transform:uppercase;letter-spacing:.3px}
+.tbl td{padding:9px 10px;border-bottom:1px solid rgba(51,65,85,.4);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(255,255,255,.02)}
+.cl{cursor:pointer;color:var(--blue);font-weight:500}.cl:hover{text-decoration:underline}
+.bc{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);margin-bottom:12px}
+.bc span{cursor:pointer}.bc span:hover{color:var(--green)}.bc .cur{color:var(--text);font-weight:500}.bc .sep{color:var(--text3)}
+.al{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;border-radius:var(--r);font-size:12px;margin-bottom:8px;border-left:3px solid;line-height:1.5}
+.alr{background:var(--rbg);border-color:var(--red);color:#fca5a5}.alo{background:var(--obg);border-color:var(--orange);color:#fcd34d}.alg{background:var(--gbg);border-color:var(--green);color:#6ee7b7}.alb{background:var(--bbg);border-color:var(--blue);color:#93c5fd}
+.altime{margin-left:auto;font-size:10px;opacity:.6;white-space:nowrap;padding-left:8px}
+.fg{margin-bottom:12px}.flbl{font-size:12px;font-weight:500;color:var(--text2);margin-bottom:5px;display:block}
+input,select,textarea{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--r);font-size:13px;background:var(--bg);color:var(--text);font-family:var(--font);transition:border .15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--green)}
+select option{background:var(--bg2)}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sb{display:flex;align-items:center;gap:8px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:6px 10px;margin-bottom:14px}
+.sb input{background:none;border:none;font-size:13px;color:var(--text);flex:1;padding:0}
+.sb input:focus{outline:none}
+.prog{display:flex;align-items:center}
+.pss{display:flex;flex-direction:column;align-items:center;flex:1}
+.pc{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700}
+.pdon{background:var(--green);color:#fff}.pact{background:var(--blue);color:#fff}.ppnd{background:var(--bg3);border:1px solid var(--border2);color:var(--text3)}.pwrn{background:var(--orange);color:#fff}
+.pl{flex:1;height:1px;background:var(--border);margin-bottom:12px}.pld{background:var(--green)}
+.plbl{font-size:9px;color:var(--text3);margin-top:3px;text-align:center}
+.dr{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.dc{font-size:12px;color:var(--text2);width:100px;flex-shrink:0}
+.dt{flex:1;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.df{height:100%;border-radius:3px}.dfg{background:var(--green)}.dfo{background:var(--orange)}.dfr{background:var(--red)}
+.dn{font-size:11px;font-weight:600;min-width:34px;text-align:right}
+.sp{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.spa{background:var(--gbg);color:var(--green)}.spb{background:var(--bbg);color:var(--blue)}.spc{background:var(--obg);color:var(--orange)}.spd{background:var(--rbg);color:var(--red)}
+.bw{display:flex;align-items:flex-end;gap:5px;height:80px}
+.bc2{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.bf{width:100%;border-radius:3px 3px 0 0;min-height:4px;background:var(--green)}.bf.or{background:var(--orange)}.bf.re{background:var(--red)}
+.blbl{font-size:9px;color:var(--text3)}.bnum{font-size:9px;color:var(--text2)}
+.ir{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(51,65,85,.4);font-size:13px}
+.ir:last-child{border-bottom:none}.ik{color:var(--text2)}.iv{font-weight:500}
+.np{position:fixed;top:50px;right:12px;width:290px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);box-shadow:var(--sh);z-index:200;display:none}
+.np.open{display:block}
+.nh{padding:11px 14px;font-size:13px;font-weight:600;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.ni{padding:10px 14px;border-bottom:1px solid rgba(51,65,85,.3);font-size:12px;cursor:pointer;transition:background .1s}
+.ni:hover{background:var(--bg3)}.ni:last-child{border-bottom:none}
+.nit{font-weight:500;margin-bottom:2px}.nib{color:var(--text2);line-height:1.4}.niti{font-size:10px;color:var(--text3);margin-top:2px}
+.ml{display:flex;height:440px}
+.mcl{width:190px;border-right:1px solid var(--border);overflow-y:auto;flex-shrink:0}
+.mc{padding:10px 12px;cursor:pointer;border-bottom:1px solid rgba(51,65,85,.3);transition:background .1s}
+.mc:hover,.mc.active{background:var(--bg3)}
+.mcn{font-size:12px;font-weight:500}.mcp{font-size:11px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px}
+.mm{flex:1;display:flex;flex-direction:column}
+.mh{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.mb{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px}
+.bub{max-width:75%;padding:8px 12px;border-radius:12px;font-size:12px;line-height:1.5}
+.bi{background:var(--bg3);border-bottom-left-radius:3px;align-self:flex-start}
+.bo2{background:var(--green);color:#fff;border-bottom-right-radius:3px;align-self:flex-end}
+.bt{font-size:10px;opacity:.6;margin-top:2px}
+.mi2{display:flex;gap:8px;padding:9px 12px;border-top:1px solid var(--border)}
+.mi2 input{border-radius:20px}
+.ram-chart{display:flex;align-items:flex-end;gap:8px;height:130px;padding:0 4px}
+.rc{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.rf{width:100%;border-radius:4px 4px 0 0;min-height:6px;position:relative}
+.rf.peak{background:linear-gradient(180deg,#c9a84c,#f59e0b)}.rf.high{background:var(--green)}.rf.med{background:var(--blue)}.rf.low{background:var(--bg3);border:1px solid var(--border2)}
+.rlbl{font-size:9px;color:var(--text3);text-align:center}.rval{font-size:9px;color:var(--text2)}
+.ram-badge{position:absolute;top:-20px;left:50%;transform:translateX(-50%);background:var(--gold);color:#000;font-size:8px;font-weight:700;padding:2px 5px;border-radius:4px;white-space:nowrap}
+.pstep{display:flex;align-items:flex-start;gap:12px;padding:12px;background:var(--bg3);border-radius:var(--r);margin-bottom:8px;border-left:3px solid var(--border2)}
+.pstep.done{border-color:var(--green)}.pstep.active{border-color:var(--blue)}.pstep.pend{border-color:var(--border2)}
+.pnum{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.pnum.done{background:var(--green);color:#fff}.pnum.active{background:var(--blue);color:#fff}.pnum.pend{background:var(--bg3);border:1px solid var(--border2);color:var(--text3)}
+.prod-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.prod-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:14px;cursor:pointer;transition:all .15s}
+.prod-card:hover{border-color:var(--green);transform:translateY(-2px)}
+.prod-icon{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--green),#06b6d4);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:10px}
+.prod-name{font-size:13px;font-weight:600;margin-bottom:4px}.prod-formats{font-size:11px;color:var(--text2);line-height:1.6}.prod-badge{margin-top:8px}
+.mkt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.mkt-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:14px;transition:all .15s}
+.mkt-card:hover{border-color:var(--blue)}
+.mkt-flag{font-size:28px;margin-bottom:8px}.mkt-name{font-size:14px;font-weight:600;margin-bottom:4px}.mkt-pop{font-size:11px;color:var(--text2);margin-bottom:8px}
+.mkt-bar{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-bottom:6px}
+.mkt-fill{height:100%;border-radius:3px;background:var(--blue)}
+.stg-section{margin-bottom:20px}
+.stg-title{font-size:14px;font-weight:600;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.toggle{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(51,65,85,.3)}
+.toggle:last-child{border-bottom:none}
+.tgl-info .tgl-name{font-size:13px;font-weight:500}.tgl-info .tgl-sub{font-size:11px;color:var(--text2);margin-top:2px}
+.switch{width:36px;height:20px;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.switch.on{background:var(--green);border-color:var(--green)}
+.switch::after{content:'';position:absolute;width:14px;height:14px;border-radius:50%;background:#fff;top:2px;left:2px;transition:left .2s}
+.switch.on::after{left:18px}
+.rtcard{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rl);padding:12px;margin-bottom:8px;cursor:pointer;transition:all .15s}
+.rtcard:hover,.rtcard.sel{border-color:var(--green);background:var(--gbg)}
+.rctop{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.rcname{font-size:13px;font-weight:600}.rcsc{font-size:18px;font-weight:700;color:var(--green)}
+.rcrow{display:flex;gap:14px;font-size:11px;color:var(--text2)}
+.map{background:linear-gradient(135deg,#0c1a2e,#0d2137,#0a1628);border-radius:var(--rl);height:260px;position:relative;overflow:hidden;border:1px solid var(--border)}
+.map-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(59,130,246,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,.05) 1px,transparent 1px);background-size:28px 28px}
+.map-info{position:absolute;top:8px;right:8px;background:rgba(15,23,42,.85);border:1px solid var(--border);border-radius:var(--r);padding:9px 11px;font-size:11px;backdrop-filter:blur(8px)}
+.ok{background:var(--gbg);border:1px solid var(--green);border-radius:var(--rxl);padding:28px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="login-screen" id="login">
+  <div class="login-glow"></div>
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-icon">EM</div>
+      <div><div class="login-logo-name">El Mordjene · EMEI</div><div class="login-logo-sub">Export Intelligence Platform v2.0</div></div>
+    </div>
+    <div class="login-title">Bienvenue</div>
+    <div class="login-sub">Connectez-vous à votre espace</div>
+    <div style="margin-bottom:16px">
+      <div class="login-lbl">Type de compte</div>
+      <div class="login-role">
+        <button class="role-btn active" onclick="setRole(this,'importateur')">🚢 Importateur</button>
+        <button class="role-btn" onclick="setRole(this,'export')">📊 Équipe Export</button>
+      </div>
+    </div>
+    <div class="login-fg"><label class="login-lbl">Email</label><input class="login-input" type="email" value="i.mansouri@import-ksa.com"></div>
+    <div class="login-fg"><label class="login-lbl">Mot de passe</label><input class="login-input" type="password" value="••••••••"></div>
+    <button class="login-btn" onclick="doLogin()">Connexion →</button>
+    <div class="login-footer">🔒 Connexion sécurisée · SARL CEBON El Mordjene</div>
+  </div>
+</div>
+
+<div class="topbar">
+  <div class="brand" onclick="toggleSidebar()">
+    <div class="brand-icon">EM</div>
+    <div><div class="brand-name">EMEI · El Mordjene</div><div class="brand-sub">Export Intelligence</div></div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchMod('portal',this)">🚢 Partner Portal</button>
+    <button class="tab" onclick="switchMod('dashboard',this)">📊 Export Dashboard</button>
+  </div>
+  <div class="tb-right">
+    <button class="btn sm" onclick="toggleDark()" id="dkbtn">☀️ Light</button>
+    <div style="position:relative">
+      <button class="ib" onclick="toggleNotif()">🔔<div class="ndot"></div></button>
+      <div class="np" id="npanel">
+        <div class="nh"><span>Notifications</span><button class="xs btn" onclick="closeNP()">✕</button></div>
+        <div class="ni" onclick="showP('alerts');closeNP()"><div class="nit">🔴 Alerte critique</div><div class="nib">Île Maurice EXP-059 — 87j sans BL</div><div class="niti">Il y a 2h</div></div>
+        <div class="ni" onclick="showP('alerts');closeNP()"><div class="nit">⚠️ Retard douanier</div><div class="nib">Libye EXP-008 — 3 jours bloqué</div><div class="niti">Il y a 5h</div></div>
+        <div class="ni" onclick="showP('messages');closeNP()"><div class="nit">💬 Nouveau message</div><div class="nib">Service Export — EXP-021 en route</div><div class="niti">Il y a 1h</div></div>
+        <div class="ni"><div class="nit">✅ Livré</div><div class="nib">Arabie Saoudite EXP-014 — 8 jours</div><div class="niti">Hier</div></div>
+      </div>
+    </div>
+    <div class="av" onclick="showP('profil')">IM</div>
+    <button class="ib" onclick="doLogout()" title="Déconnexion">🚪</button>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar" id="sbp">
+    <div class="ssec"><div class="slbl">Principal</div>
+      <button class="sitem active" id="si-expeditions" onclick="showP('expeditions')"><span class="sico">🚢</span><span class="stxt">Expéditions</span></button>
+      <button class="sitem" id="si-gps" onclick="showP('gps')"><span class="sico">🗺️</span><span class="stxt">Suivi GPS</span></button>
+      <button class="sitem" id="si-documents" onclick="showP('documents')"><span class="sico">📁</span><span class="stxt">Documents</span></button>
+      <button class="sitem" id="si-paiements" onclick="showP('paiements')"><span class="sico">💳</span><span class="stxt">Paiements</span></button>
+      <button class="sitem" id="si-catalogue" onclick="showP('catalogue')"><span class="sico">📦</span><span class="stxt">Catalogue</span></button>
+      <button class="sitem" id="si-commande" onclick="showP('commande')"><span class="sico">➕</span><span class="stxt">Nouvelle commande</span></button>
+      <button class="sitem" id="si-commandes" onclick="showP('commandes')"><span class="sico">📋</span><span class="stxt">Mes commandes</span><span class="scnt" id="cmdCnt" style="display:none">0</span></button>
+    </div>
+    <div class="sdiv"></div>
+    <div class="ssec"><div class="slbl">Communication</div>
+      <button class="sitem" id="si-messages" onclick="showP('messages')"><span class="sico">💬</span><span class="stxt">Messagerie</span><span class="scnt">2</span></button>
+      <button class="sitem" id="si-alerts" onclick="showP('alerts')"><span class="sico">🔔</span><span class="stxt">Alertes</span><span class="scnt">3</span></button>
+    </div>
+    <div class="sdiv"></div>
+    <div class="ssec"><div class="slbl">Compte</div>
+      <button class="sitem" id="si-profil" onclick="showP('profil')"><span class="sico">👤</span><span class="stxt">Mon profil</span></button>
+      <button class="sitem" id="si-settings" onclick="showP('settings')"><span class="sico">⚙️</span><span class="stxt">Paramètres</span></button>
+    </div>
+  </div>
+
+  <div class="sidebar" id="sbd" style="display:none">
+    <div class="ssec"><div class="slbl">Pilotage</div>
+      <button class="sitem active" id="si-kpi" onclick="showP('kpi')"><span class="sico">📊</span><span class="stxt">Vue générale</span></button>
+      <button class="sitem" id="si-marches" onclick="showP('marches')"><span class="sico">🌍</span><span class="stxt">Marchés</span></button>
+      <button class="sitem" id="si-delais" onclick="showP('delais')"><span class="sico">⏱️</span><span class="stxt">Délais</span></button>
+      <button class="sitem" id="si-ramadan" onclick="showP('ramadan')"><span class="sico">🌙</span><span class="stxt">Prévisions </span></button>
+      <button class="sitem" id="si-production" onclick="showP('production')"><span class="sico">🏭</span><span class="stxt">Production</span></button>
+      <button class="sitem" id="si-routing" onclick="showP('routing')"><span class="sico">🤖</span><span class="stxt">Smart Routing</span></button>
+      <button class="sitem" id="si-operateurs" onclick="showP('operateurs')"><span class="sico">👥</span><span class="stxt">Opérateurs</span></button>
+      <button class="sitem" id="si-nouveaux" onclick="showP('nouveaux')"><span class="sico">🌐</span><span class="stxt">Nouveaux marchés</span></button>
+    </div>
+    <div class="sdiv"></div>
+    <div class="ssec"><div class="slbl">Rapports</div>
+      <button class="sitem" id="si-dash-alerts" onclick="showP('alerts')"><span class="sico">🔔</span><span class="stxt">Alertes</span><span class="scnt">3</span></button>
+      <button class="sitem" id="si-rapport" onclick="showP('rapport')"><span class="sico">📄</span><span class="stxt">Rapport mensuel</span></button>
+      <button class="sitem" id="si-settings2" onclick="showP('settings')"><span class="sico">⚙️</span><span class="stxt">Paramètres</span></button>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- EXPEDITIONS -->
+    <div class="page active" id="page-expeditions">
+      <div class="ph"><div><div class="pt">🚢 Mes expéditions</div><div class="ps2">3 actives · 8 livrées ce trimestre</div></div><button class="btn bg-btn" onclick="showP('commande')">➕ Nouvelle commande</button></div>
+      <div class="sb">🔍<input type="text" placeholder="Rechercher..." oninput="filterExp(this.value)"></div>
+      <div class="sg g4">
+        <div class="sc"><div class="sl">En cours</div><div class="sv">3</div><div class="ss"><span class="badge bb">Actives</span></div></div>
+        <div class="sc"><div class="sl">Livrées T1 2026</div><div class="sv">8</div><div class="ss"><span class="badge bg">+2 vs T-1</span></div></div>
+        <div class="sc"><div class="sl">CA total</div><div class="sv">461k€</div><div class="ss"><span class="badge bg">Confirmé</span></div></div>
+        <div class="sc"><div class="sl">Délai moyen</div><div class="sv">9.5j</div><div class="ss"><span class="badge bg">Zone verte</span></div></div>
+      </div>
+      <div class="card" style="margin:0"><table class="tbl" id="etbl">
+        <thead><tr><th>Référence</th><th>Destination</th><th>Produit</th><th>Montant</th><th>Statut</th><th>Avancement</th><th>Actions</th></tr></thead>
+        <tbody>
+          <tr><td class="cl" onclick="showDetail('exp1')">EXP-2026-014</td><td>🇸🇦 Arabie Saoudite</td><td>Crème Noisette 700g</td><td><strong>87 420€</strong></td><td><span class="badge bg">✓ Livré</span></td><td><div style="height:4px;background:var(--bg3);border-radius:2px"><div style="width:100%;height:100%;background:var(--green);border-radius:2px"></div></div></td><td style="display:flex;gap:4px"><button class="btn xs" onclick="showDetail('exp1')">👁</button><button class="btn xs" onclick="showP('gps')">🗺</button></td></tr>
+          <tr><td class="cl" onclick="showDetail('exp2')">EXP-2026-021</td><td>🇰🇼 Koweït</td><td>Pâte à Tartiner 700g</td><td><strong>42 300€</strong></td><td><span class="badge bb">⛵ Transit</span></td><td><div style="height:4px;background:var(--bg3);border-radius:2px"><div style="width:65%;height:100%;background:var(--blue);border-radius:2px"></div></div></td><td style="display:flex;gap:4px"><button class="btn xs" onclick="showDetail('exp2')">👁</button><button class="btn xs" onclick="showP('gps')">🗺</button></td></tr>
+          <tr><td class="cl" onclick="showDetail('exp3')">EXP-2026-008</td><td>🇱🇾 Libye</td><td>Crème Noisette 700g</td><td><strong>65 180€</strong></td><td><span class="badge bo">⚠️ Retard 3j</span></td><td><div style="height:4px;background:var(--bg3);border-radius:2px"><div style="width:40%;height:100%;background:var(--orange);border-radius:2px"></div></div></td><td style="display:flex;gap:4px"><button class="btn xs" onclick="showDetail('exp3')">👁</button><button class="btn xs" onclick="showP('messages')">💬</button></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <div class="page" id="page-detail-exp1">
+      <div class="bc"><span onclick="showP('expeditions')">🚢 Expéditions</span><span class="sep">›</span><span class="cur">EXP-2026-014</span></div>
+      <div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:14px"><div><div style="font-size:15px;font-weight:600">EXP-2026-014 · Arabie Saoudite — Jeddah</div><div style="font-size:12px;color:var(--text2);margin-top:3px">Crème Noisette 700g · 2×40ft · CPT · CMA CGM · <span class="badge bg">✓ Livré</span></div></div><div style="font-size:22px;font-weight:700;color:var(--green)">87 420€</div></div>
+      <div class="prog"><div class="pss"><div class="pc pdon">✓</div><div class="plbl">Commande</div></div><div class="pl pld"></div><div class="pss"><div class="pc pdon">✓</div><div class="plbl">Production</div></div><div class="pl pld"></div><div class="pss"><div class="pc pdon">✓</div><div class="plbl">Chargement</div></div><div class="pl pld"></div><div class="pss"><div class="pc pdon">✓</div><div class="plbl">BL émis</div></div><div class="pl pld"></div><div class="pss"><div class="pc pdon">✓</div><div class="plbl">Transit</div></div><div class="pl pld"></div><div class="pss"><div class="pc pdon">✓</div><div class="plbl">Livré ✓</div></div></div></div>
+      <div class="sg g2">
+        <div class="card" style="margin:0"><div class="ct">📋 Informations</div><div class="ir"><span class="ik">Armateur</span><span class="iv">CMA CGM</span></div><div class="ir"><span class="ik">Incoterm</span><span class="iv">CPT</span></div><div class="ir"><span class="ik">Conteneur</span><span class="iv">2×40ft</span></div><div class="ir"><span class="ik">Chargement</span><span class="iv">04 mai 2026</span></div><div class="ir"><span class="ik">Livraison</span><span class="iv">12 mai 2026</span></div><div class="ir"><span class="ik">Délai réel</span><span class="iv" style="color:var(--green)">8 jours ✓</span></div></div>
+        <div class="card" style="margin:0"><div class="ct">📁 Documents</div>
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px;background:var(--bg3);border-radius:var(--r)"><span style="font-size:12px">📄 Connaissement BL</span><button class="btn xs" onclick="alert('Téléchargement...')">⬇</button></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px;background:var(--bg3);border-radius:var(--r)"><span style="font-size:12px">🏥 Certificat CACQE</span><button class="btn xs" onclick="alert('Téléchargement...')">⬇</button></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px;background:var(--bg3);border-radius:var(--r)"><span style="font-size:12px">🌍 Certificat d'origine</span><button class="btn xs" onclick="alert('Téléchargement...')">⬇</button></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px;background:var(--bg3);border-radius:var(--r)"><span style="font-size:12px">🧾 Facture commerciale</span><button class="btn xs" onclick="alert('Téléchargement...')">⬇</button></div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px"><button class="btn" onclick="showP('expeditions')">← Retour</button><button class="btn bg-btn" onclick="showP('commande')">↻ Renouveler</button><button class="btn" onclick="showP('gps')">🗺 GPS</button></div>
+    </div>
+
+    <div class="page" id="page-detail-exp2">
+      <div class="bc"><span onclick="showP('expeditions')">🚢 Expéditions</span><span class="sep">›</span><span class="cur">EXP-2026-021</span></div>
+      <div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:14px"><div><div style="font-size:15px;font-weight:600">EXP-2026-021 · Koweït — Koweït City</div><div style="font-size:12px;color:var(--text2);margin-top:3px">Pâte à Tartiner 700g · 1×20ft · FOB · Hapag-Lloyd · <span class="badge bb">⛵ En transit</span></div></div><div style="font-size:22px;font-weight:700;color:var(--blue)">42 300€</div></div>
+      <div class="prog"><div class="pss"><div class="pc pdon">✓</div><div class="plbl">Commande</div></div><div class="pl pld"></div><div class="pss"><div class="pc pdon">✓</div><div class="plbl">Production</div></div><div class="pl pld"></div><div class="pss"><div class="pc pdon">✓</div><div class="plbl">Chargement</div></div><div class="pl pld"></div><div class="pss"><div class="pc pact">●</div><div class="plbl">Transit</div></div><div class="pl"></div><div class="pss"><div class="pc ppnd">○</div><div class="plbl">Livraison</div></div></div>
+      <div style="margin-top:12px;padding:10px;background:var(--bbg);border-radius:var(--r);font-size:12px;color:#93c5fd">ℹ️ ETA : <strong>28 mai 2026</strong> — Hapag-Lloyd · Golfe Persique</div></div>
+      <div style="display:flex;gap:8px"><button class="btn" onclick="showP('expeditions')">← Retour</button><button class="btn" onclick="showP('gps')">🗺 GPS</button><button class="btn" onclick="showP('messages')">💬 Contacter CEBON</button></div>
+    </div>
+
+    <div class="page" id="page-detail-exp3">
+      <div class="bc"><span onclick="showP('expeditions')">🚢 Expéditions</span><span class="sep">›</span><span class="cur">EXP-2026-008</span></div>
+      <div class="alo al" style="margin-bottom:12px">⚠️ Blocage douanier à la frontière algéro-libyenne — 3 jours. Action requise.</div>
+      <div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:12px"><div><div style="font-size:15px;font-weight:600">EXP-2026-008 · Libye — Tripoli</div><div style="font-size:12px;color:var(--text2);margin-top:3px">Crème Noisette 700g · FOB · Arkas · Transport routier · <span class="badge bo">⚠️ Retard 3j</span></div></div><div style="font-size:22px;font-weight:700;color:var(--orange)">65 180€</div></div></div>
+      <div style="display:flex;gap:8px"><button class="btn" onclick="showP('expeditions')">← Retour</button><button class="btn bg-btn" onclick="alert('Notification envoyée!')">📨 Notifier CEBON</button><button class="btn" onclick="showP('messages')">💬 Messagerie</button></div>
+    </div>
+
+    <div class="page" id="page-gps">
+      <div class="ph"><div><div class="pt">🗺️ Suivi GPS — Temps réel</div><div class="ps2">Via Maersk · CMA CGM · Hapag-Lloyd · Arkas</div></div></div>
+      <div class="map">
+        <div class="map-grid"></div>
+        <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 680 260">
+          <path d="M180,145 Q320,70 510,135" stroke="rgba(59,130,246,.5)" stroke-width="2" fill="none" stroke-dasharray="6 3"/>
+          <path d="M180,145 L295,140" stroke="rgba(245,158,11,.5)" stroke-width="2" fill="none" stroke-dasharray="4 3"/>
+          <circle cx="180" cy="145" r="6" fill="#10b981" opacity=".9"/>
+          <text x="180" y="163" text-anchor="middle" fill="rgba(255,255,255,.6)" font-size="9">🇩🇿 Alger</text>
+          <circle cx="510" cy="135" r="5" fill="#3b82f6" opacity=".8"/>
+          <text x="510" y="153" text-anchor="middle" fill="rgba(255,255,255,.6)" font-size="9">🇰🇼 Koweït</text>
+          <circle cx="295" cy="140" r="5" fill="#f59e0b" opacity=".7"/>
+          <text x="295" y="158" text-anchor="middle" fill="rgba(255,255,255,.6)" font-size="9">🇱🇾 Tripoli</text>
+          <circle cx="360" cy="98" r="8" fill="#3b82f6" opacity=".9"><animate attributeName="cx" values="355;368;355" dur="4s" repeatCount="indefinite"/></circle>
+          <text x="360" y="85" text-anchor="middle" fill="#93c5fd" font-size="9" font-weight="bold">⛵ EXP-021</text>
+          <circle cx="238" cy="143" r="7" fill="#f59e0b" opacity=".9"><animate attributeName="opacity" values=".9;.3;.9" dur="1.5s" repeatCount="indefinite"/></circle>
+          <text x="238" y="130" text-anchor="middle" fill="#fcd34d" font-size="9" font-weight="bold">⚠️ EXP-008</text>
+        </svg>
+        <div class="map-info">
+          <div style="font-size:11px;font-weight:600;margin-bottom:5px">Légende</div>
+          <div style="font-size:10px;color:var(--text2);margin-bottom:3px">🟢 Alger (départ)</div>
+          <div style="font-size:10px;color:var(--blue);margin-bottom:3px">⛵ En transit</div>
+          <div style="font-size:10px;color:var(--orange);margin-bottom:5px">⚠️ Bloqué</div>
+          <div style="font-size:9px;color:var(--text3)">MAJ : il y a 12min</div>
+        </div>
+      </div>
+      <div class="sg g3" style="margin-top:12px">
+        <div class="sc"><div class="sl">EXP-021 · Koweït</div><div class="sv" style="font-size:13px;color:var(--blue)">⛵ En route</div><div style="font-size:11px;color:var(--text2);margin-top:2px">ETA : 28 mai · Hapag-Lloyd</div></div>
+        <div class="sc"><div class="sl">EXP-008 · Libye</div><div class="sv" style="font-size:13px;color:var(--orange)">⚠️ Bloqué 3j</div><div style="font-size:11px;color:var(--text2);margin-top:2px">Frontière algéro-libyenne</div></div>
+        <div class="sc"><div class="sl">EXP-014 · Arabie Saoudite</div><div class="sv" style="font-size:13px;color:var(--green)">✓ Livré</div><div style="font-size:11px;color:var(--text2);margin-top:2px">Jeddah · 8 jours</div></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-documents">
+      <div class="ph"><div><div class="pt">📁 Documents export</div></div><select style="width:auto;font-size:12px;padding:6px 10px"><option>Tous types</option><option>BL</option><option>Sanitaire</option><option>Origine</option></select></div>
+      <div class="sb">🔍<input type="text" placeholder="Rechercher..."></div>
+      <div class="card" style="margin:0"><table class="tbl"><thead><tr><th>Document</th><th>Expédition</th><th>Date</th><th>Type</th><th>Action</th></tr></thead><tbody>
+        <tr><td>Connaissement (BL)</td><td>EXP-2026-014</td><td>12 mai 2026</td><td><span class="badge bb">BL</span></td><td><button class="btn xs" onclick="alert('Téléchargement...')">⬇ Télécharger</button></td></tr>
+        <tr><td>Certificat sanitaire CACQE</td><td>EXP-2026-014</td><td>10 mai 2026</td><td><span class="badge bg">Sanitaire</span></td><td><button class="btn xs" onclick="alert('Téléchargement...')">⬇ Télécharger</button></td></tr>
+        <tr><td>Certificat d'origine</td><td>EXP-2026-014</td><td>10 mai 2026</td><td><span class="badge bp">Origine</span></td><td><button class="btn xs" onclick="alert('Téléchargement...')">⬇ Télécharger</button></td></tr>
+        <tr><td>Facture commerciale</td><td>EXP-2026-021</td><td>18 mai 2026</td><td><span class="badge bgr">Facture</span></td><td><button class="btn xs" onclick="alert('Téléchargement...')">⬇ Télécharger</button></td></tr>
+        <tr><td>Packing list</td><td>EXP-2026-021</td><td>18 mai 2026</td><td><span class="badge bgr">Colisage</span></td><td><button class="btn xs" onclick="alert('Téléchargement...')">⬇ Télécharger</button></td></tr>
+        <tr><td>Facture pro forma</td><td>EXP-2026-008</td><td>2 mai 2026</td><td><span class="badge bo">Pro forma</span></td><td><button class="btn xs" onclick="alert('Téléchargement...')">⬇ Télécharger</button></td></tr>
+      </tbody></table></div>
+    </div>
+
+    <div class="page" id="page-paiements">
+      <div class="pt" style="margin-bottom:14px">💳 Paiements & Factures</div>
+      <div class="sg g3"><div class="sc"><div class="sl">Total payé</div><div class="sv" style="color:var(--green)">461k€</div><div class="ss"><span class="badge bg">3 transactions</span></div></div><div class="sc"><div class="sl">En attente</div><div class="sv">0€</div><div class="ss"><span class="badge bg">Tout réglé</span></div></div><div class="sc"><div class="sl">Mode paiement</div><div class="sv" style="font-size:14px">LC + Swift</div><div class="ss"><span class="badge bb">Sécurisé</span></div></div></div>
+      <div class="card" style="margin:0"><table class="tbl"><thead><tr><th>Référence</th><th>Destination</th><th>Montant</th><th>Mode</th><th>Date</th><th>Statut</th></tr></thead><tbody>
+        <tr><td>EXP-2026-014</td><td>🇸🇦 Arabie Saoudite</td><td><strong>87 420€</strong></td><td><span class="badge bb">LC</span></td><td>02 mai 2026</td><td><span class="badge bg">✓ Confirmé</span></td></tr>
+        <tr><td>EXP-2026-021</td><td>🇰🇼 Koweït</td><td><strong>42 300€</strong></td><td><span class="badge bp">Swift 100%</span></td><td>17 mai 2026</td><td><span class="badge bg">✓ Confirmé</span></td></tr>
+        <tr><td>EXP-2026-008</td><td>🇱🇾 Libye</td><td><strong>65 180€</strong></td><td><span class="badge bb">LC</span></td><td>01 mai 2026</td><td><span class="badge bg">✓ Confirmé</span></td></tr>
+      </tbody></table></div>
+    </div>
+
+    <div class="page" id="page-catalogue">
+      <div class="ph"><div><div class="pt">📦 Catalogue produits El Mordjene</div></div></div>
+      <div class="prod-grid">
+        <div class="prod-card"><div class="prod-icon">🍫</div><div class="prod-name">Crème Noisette</div><div class="prod-formats">700g · 350g · 200g · 2.5kg · 12kg</div><div class="prod-badge"><span class="badge bg">⭐ Best-seller export</span></div></div>
+        <div class="prod-card"><div class="prod-icon">🥜</div><div class="prod-name">Pâte à Tartiner</div><div class="prod-formats">700g · 350g · 200g · 2.5kg · 12kg</div><div class="prod-badge"><span class="badge bb">74.6% du volume</span></div></div>
+        <div class="prod-card"><div class="prod-icon">🌰</div><div class="prod-name">Crème Noisette Rocher</div><div class="prod-formats">600g · 200g · 2.5kg</div><div class="prod-badge"><span class="badge bp">Premium</span></div></div>
+        <div class="prod-card"><div class="prod-icon">🍯</div><div class="prod-name">Pâte à Tartiner Rocher</div><div class="prod-formats">600g · 200g · 2.5kg</div><div class="prod-badge"><span class="badge bp">Premium</span></div></div>
+        <div class="prod-card"><div class="prod-icon">🥜</div><div class="prod-name">Crème Cacahuètes</div><div class="prod-formats">700g · 350g · 200g</div><div class="prod-badge"><span class="badge bo">Nouveau</span></div></div>
+        <div class="prod-card"><div class="prod-icon">❄️</div><div class="prod-name">S'men</div><div class="prod-formats">9kg · 3kg · 1.8kg · 900g · 500g · 300g</div><div class="prod-badge"><span class="badge bgr">Traditionnel</span></div></div>
+        <div class="prod-card"><div class="prod-icon">🍬</div><div class="prod-name">Vanille</div><div class="prod-formats">20kg · 6kg · 3kg · 700g · 200g · 5g</div><div class="prod-badge"><span class="badge bgr">Ingrédient</span></div></div>
+        <div class="prod-card"><div class="prod-icon">🍚</div><div class="prod-name">Sucre Glace</div><div class="prod-formats">700g</div><div class="prod-badge"><span class="badge bgr">Ingrédient</span></div></div>
+        <div class="prod-card"><div class="prod-icon">🧁</div><div class="prod-name">Chantilly</div><div class="prod-formats">6kg · 3kg · 2kg · 600g · 200g</div><div class="prod-badge"><span class="badge bgr">Professionnel</span></div></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-commande">
+      <div class="bc"><span onclick="showP('expeditions')">🚢 Expéditions</span><span class="sep">›</span><span class="cur">Nouvelle commande</span></div>
+      <div class="pt" style="margin-bottom:14px">Passer une nouvelle commande</div>
+      <div class="sg g2">
+        <div class="card" style="margin:0"><div class="ct">📦 Produit & Quantité</div>
+          <div class="fg"><label class="flbl">Produit</label><select id="co_prod"><option>Crème Noisette</option><option>Pâte à Tartiner</option><option>Crème Noisette Rocher</option><option>Pâte à Tartiner Rocher</option><option>Crème Cacahuètes</option><option>S'men</option><option>Vanille</option><option>Chantilly</option></select></div>
+          <div class="fg"><label class="flbl">Format</label><select id="co_fmt"><option>700g</option><option>350g</option><option>200g</option><option>2.5kg</option><option>12kg</option></select></div>
+          <div class="fgrid"><div class="fg"><label class="flbl">Palettes</label><input id="co_pal" type="number" value="10" min="1"></div><div class="fg"><label class="flbl">Conteneur</label><select id="co_cnt"><option>1×20ft</option><option>1×40ft</option><option>2×40ft</option></select></div></div>
+        </div>
+        <div class="card" style="margin:0"><div class="ct">🚢 Logistique & Paiement</div>
+          <div class="fg"><label class="flbl">Destination</label><select id="co_dst"><option>🇸🇦 Arabie Saoudite</option><option>🇰🇼 Koweït</option><option>🇩🇯 Djibouti</option><option>🇪🇬 Égypte</option><option>🇱🇾 Libye</option><option>🇨🇦 Canada</option><option>🇲🇺 Île Maurice</option></select></div>
+          <div class="fg"><label class="flbl">Incoterm</label><select id="co_inc"><option>CPT</option><option>FOB</option><option>CFR</option></select></div>
+          <div class="fg"><label class="flbl">Mode de paiement</label><select id="co_pay"><option>Virement anticipé 100%</option><option>Lettre de crédit (LC)</option></select></div>
+          <div class="fg"><label class="flbl">Notes</label><textarea id="co_notes" rows="2" placeholder="Instructions..."></textarea></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px"><button class="btn" onclick="showP('expeditions')">Annuler</button><button class="btn bg-btn" onclick="submitOrder()">📨 Envoyer la commande</button></div>
+    </div>
+
+    <div class="page" id="page-commandes">
+      <div class="ph"><div><div class="pt">📋 Mes commandes</div><div class="ps2" id="cmdSummary">Aucune commande envoyée</div></div><button class="btn bg-btn" onclick="showP('commande')">➕ Nouvelle commande</button></div>
+      <div class="card" style="margin:0;padding:0;overflow:hidden">
+        <div style="overflow:auto"><table class="tbl" id="cmdTbl"><thead><tr><th>Référence</th><th>Date</th><th>Produit</th><th>Destination</th><th>Conteneur</th><th>Incoterm</th><th>Statut</th><th></th></tr></thead><tbody></tbody></table></div>
+        <div id="cmdEmpty" style="padding:40px;text-align:center;color:var(--text3);font-size:13px">📭 Aucune commande pour le moment.<br><br><button class="btn bg-btn" onclick="showP('commande')">➕ Passer ma première commande</button></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-confirmation">
+      <div class="ok"><div style="font-size:40px;margin-bottom:10px">✅</div><div style="font-size:17px;font-weight:700;color:var(--green);margin-bottom:6px">Commande envoyée !</div><div style="font-size:13px;color:var(--text2);margin-bottom:6px">Réf. provisoire : <strong id="confRef">EXP-2026-031</strong></div><div style="font-size:12px;color:var(--text3);margin-bottom:16px">Confirmation du service Export sous 24h</div><div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><button class="btn" onclick="showP('commandes')">📋 Mes commandes</button><button class="btn" onclick="showP('expeditions')">🚢 Expéditions</button><button class="btn bg-btn" onclick="showP('commande')">➕ Nouvelle</button></div></div>
+    </div>
+
+    <div class="page" id="page-messages">
+      <div class="pt" style="margin-bottom:12px">💬 Messagerie — Service Export CEBON</div>
+      <div class="card" style="margin:0;padding:0;overflow:hidden">
+        <div class="ml">
+          <div class="mcl">
+            <div class="mc active"><div style="display:flex;justify-content:space-between"><div class="mcn">Service Export</div><div style="font-size:10px;color:var(--text3)">10:34</div></div><div class="mcp">EXP-021 en route...</div><span class="badge br" style="font-size:10px;margin-top:4px">2 nouveaux</span></div>
+            <div class="mc"><div style="display:flex;justify-content:space-between"><div class="mcn">Logistique CEBON</div><div style="font-size:10px;color:var(--text3)">Hier</div></div><div class="mcp">Documents EXP-014 dispo</div></div>
+            <div class="mc"><div style="display:flex;justify-content:space-between"><div class="mcn">Support CEBON</div><div style="font-size:10px;color:var(--text3)">Lun</div></div><div class="mcp">Bienvenue sur EMEI !</div></div>
+          </div>
+          <div class="mm">
+            <div class="mh"><div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--green),#06b6d4);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff">CE</div><div><div style="font-size:13px;font-weight:600">Service Export CEBON</div><div style="font-size:11px;color:var(--green)">● En ligne</div></div></div>
+            <div class="mb">
+              <div style="align-self:flex-start"><div class="bub bi">Bonjour, votre expédition EXP-2026-021 est en transit. ETA Koweït City : 28 mai 2026.</div><div class="bt" style="color:var(--text3);font-size:10px">10:15</div></div>
+              <div style="align-self:flex-end"><div class="bub bo2">Y a-t-il des risques de retard ?</div><div class="bt" style="color:var(--text3);font-size:10px;text-align:right">10:22</div></div>
+              <div style="align-self:flex-start"><div class="bub bi">Non, la route est stable. Je vous enverrai le BL dès émission.</div><div class="bt" style="color:var(--text3);font-size:10px">10:34</div></div>
+            </div>
+            <div class="mi2"><input type="text" placeholder="Écrire un message..." id="msgi"><button class="btn bg-btn sm" onclick="sendM()">Envoyer ➤</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-alerts">
+      <div class="pt" style="margin-bottom:14px">🔔 Alertes & Notifications</div>
+      <div class="alr al">🔴<div style="flex:1"><strong>Île Maurice EXP-059</strong> — 87j sans BL. Intervention urgente.<br><button class="btn xs bg-btn" style="margin-top:6px" onclick="showP('messages')">💬 Contacter</button></div><span class="altime">2h</span></div>
+      <div class="alo al">⚠️<div style="flex:1"><strong>Libye EXP-008</strong> — Retard douanier 3j.</div><span class="altime">5h</span></div>
+      <div class="alo al">🔒<div style="flex:1"><strong>Koweït EXP-061</strong> — Bloqué conflit · 42 300€</div><span class="altime">Hier</span></div>
+      <div class="alg al">✅<div style="flex:1"><strong>Arabie Saoudite EXP-014</strong> — Livré en 8 jours.</div><span class="altime">1j</span></div>
+      <div class="alb al">📈<div style="flex:1"><strong>Prévision T2 2026</strong> — 8 ops · ~420k€</div><span class="altime">Auto</span></div>
+    </div>
+
+    <div class="page" id="page-profil">
+      <div class="pt" style="margin-bottom:14px">👤 Mon profil</div>
+      <div class="sg g2">
+        <div class="card" style="margin:0"><div class="ct">Informations personnelles</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px"><div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--green),#06b6d4);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff">IM</div><div><div style="font-size:15px;font-weight:600">Ibrahim Al-Mansouri</div><div style="font-size:12px;color:var(--text2)">Importateur Premium · Arabie Saoudite</div><span class="badge bg" style="margin-top:4px">✓ Vérifié</span></div></div>
+          <div class="ir"><span class="ik">Email</span><span class="iv">i.mansouri@import-ksa.com</span></div>
+          <div class="ir"><span class="ik">Téléphone</span><span class="iv">+966 55 123 4567</span></div>
+          <div class="ir"><span class="ik">Pays</span><span class="iv">🇸🇦 Jeddah</span></div>
+          <div class="ir"><span class="ik">Membre depuis</span><span class="iv">Mars 2025</span></div>
+          <button class="btn bg-btn" style="margin-top:12px" onclick="alert('Profil sauvegardé!')">💾 Sauvegarder</button>
+        </div>
+        <div class="card" style="margin:0"><div class="ct">📊 Statistiques partenariat</div>
+          <div class="ir"><span class="ik">Total opérations</span><span class="iv" style="color:var(--green)">20</span></div>
+          <div class="ir"><span class="ik">CA total</span><span class="iv" style="color:var(--green)">1 152k€</span></div>
+          <div class="ir"><span class="ik">Taux livraison</span><span class="iv" style="color:var(--green)">95%</span></div>
+          <div class="ir"><span class="ik">Score fidélité</span><span class="iv"><span class="sp spa">A+ · Gold</span></span></div>
+          <div class="ir"><span class="ik">Réclamations</span><span class="iv" style="color:var(--green)">0</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-settings">
+      <div class="pt" style="margin-bottom:16px">⚙️ Paramètres</div>
+      <div class="sg g2">
+        <div>
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:16px;margin-bottom:12px">
+            <div class="stg-title">🔔 Notifications</div>
+            <div class="toggle"><div class="tgl-info"><div class="tgl-name">Alertes critiques</div><div class="tgl-sub">Délais, blocages, incidents</div></div><div class="switch on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle"><div class="tgl-info"><div class="tgl-name">Livraisons confirmées</div></div><div class="switch on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle"><div class="tgl-info"><div class="tgl-name">Nouveaux documents</div></div><div class="switch on" onclick="this.classList.toggle('on')"></div></div>
+          </div>
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:16px">
+            <div class="stg-title">🌍 Langue & Région</div>
+            <div class="fg"><label class="flbl">Langue</label><select><option>🇫🇷 Français</option><option>🇬🇧 English</option><option>🇸🇦 العربية</option></select></div>
+            <div class="fg"><label class="flbl">Devise</label><select><option>Euro (€)</option><option>Dollar ($)</option><option>Riyal (SAR)</option></select></div>
+          </div>
+        </div>
+        <div>
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:16px;margin-bottom:12px">
+            <div class="stg-title">🎨 Apparence</div>
+            <div class="toggle"><div class="tgl-info"><div class="tgl-name">Mode sombre</div></div><div class="switch on" onclick="toggleDark()"></div></div>
+            <div class="toggle"><div class="tgl-info"><div class="tgl-name">Sidebar compacte</div></div><div class="switch" onclick="this.classList.toggle('on');toggleSidebar()"></div></div>
+          </div>
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:16px">
+            <div class="stg-title">🔐 Sécurité</div>
+            <div class="fg"><label class="flbl">Email</label><input type="email" value="i.mansouri@import-ksa.com"></div>
+            <div class="fg"><label class="flbl">Nouveau mot de passe</label><input type="password" placeholder="••••••••"></div>
+            <button class="btn bg-btn" onclick="alert('Sauvegardé!')">💾 Sauvegarder</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD PAGES -->
+    <div class="page" id="page-kpi">
+      <div class="ph"><div><div class="pt">📊 Vue générale KPI</div><div class="ps2">Jan 2025 – Mar 2026</div></div><button class="btn bg-btn sm" onclick="alert('PDF généré!')">⬇ PDF</button></div>
+      <div class="sg g4"><div class="sc"><div class="sl">CA total</div><div class="sv">3.4M€</div><div class="ss"><span class="badge bg">65 ops</span></div></div><div class="sc"><div class="sl">Taux service</div><div class="sv">86.2%</div><div class="ss"><span class="badge bb">56 livrées</span></div></div><div class="sc"><div class="sl">CA bloqué</div><div class="sv">252k€</div><div class="ss"><span class="badge br">5 conflits</span></div></div><div class="sc"><div class="sl">Délai médian</div><div class="sv">6 jours</div><div class="ss"><span class="badge bg">Cœur marché</span></div></div></div>
+      <div class="sg g2"><div class="card" style="margin:0"><div class="ct">📈 CA par trimestre</div><div class="bw"><div class="bc2"><div class="bnum">1.4M</div><div class="bf" style="height:100%"></div><div class="blbl">T1 25</div></div><div class="bc2"><div class="bnum">877k</div><div class="bf or" style="height:62%"></div><div class="blbl">T2 25</div></div><div class="bc2"><div class="bnum">532k</div><div class="bf or" style="height:38%"></div><div class="blbl">T3 25</div></div><div class="bc2"><div class="bnum">254k</div><div class="bf re" style="height:18%"></div><div class="blbl">T4 25</div></div><div class="bc2"><div class="bnum">286k</div><div class="bf" style="height:20%"></div><div class="blbl">T1 26</div></div></div></div>
+      <div class="card" style="margin:0"><div class="ct">🌍 Répartition zones</div><div class="dr"><span class="dc">Moyen-Orient</span><div class="dt"><div class="df dfg" style="width:62%"></div></div><span class="dn" style="color:var(--green)">62%</span></div><div class="dr"><span class="dc">Afrique</span><div class="dt"><div class="df dfg" style="width:34%"></div></div><span class="dn" style="color:var(--green)">34%</span></div><div class="dr"><span class="dc">Amériques</span><div class="dt"><div class="df dfo" style="width:3%"></div></div><span class="dn" style="color:var(--orange)">3%</span></div><div class="dr"><span class="dc">Europe</span><div class="dt"><div class="df dfr" style="width:1%"></div></div><span class="dn" style="color:var(--red)">1%</span></div></div></div>
+    </div>
+
+    <div class="page" id="page-marches">
+      <div class="pt" style="margin-bottom:14px">🌍 Scoring des marchés</div>
+      <div class="card" style="margin:0"><table class="tbl"><thead><tr><th>Marché</th><th>CA</th><th>Ops</th><th>Délai</th><th>Panier</th><th>Score</th><th>Action</th></tr></thead><tbody>
+        <tr><td>🇸🇦 Arabie Saoudite</td><td><strong>1 152k€</strong></td><td>20</td><td style="color:var(--green)">9.5j</td><td>57 583€</td><td><span class="sp spa">A+ 94</span></td><td><span class="badge bg">Sécuriser</span></td></tr>
+        <tr><td>🇩🇯 Djibouti</td><td><strong>278k€</strong></td><td>3</td><td style="color:var(--green)">9j</td><td>92 595€</td><td><span class="sp spa">A 88</span></td><td><span class="badge bg">Développer</span></td></tr>
+        <tr><td>🇱🇾 Libye</td><td><strong>460k€</strong></td><td>7</td><td style="color:var(--green)">16j</td><td>65 687€</td><td><span class="sp spb">B+ 78</span></td><td><span class="badge bb">Maintenir</span></td></tr>
+        <tr><td>🇨🇦 Canada</td><td><strong>100k€</strong></td><td>2</td><td style="color:var(--orange)">23j</td><td>50 161€</td><td><span class="sp spc">C 58</span></td><td><span class="badge bo">Optimiser</span></td></tr>
+        <tr><td>🇲🇺 Île Maurice</td><td><strong>104k€</strong></td><td>2</td><td style="color:var(--red)">101j</td><td>52 152€</td><td><span class="sp spd">D 18</span></td><td><span class="badge br">Audit urgent</span></td></tr>
+      </tbody></table></div>
+    </div>
+
+    <div class="page" id="page-delais">
+      <div class="pt" style="margin-bottom:14px">⏱️ Analyse des délais</div>
+      <div class="sg g4"><div class="sc"><div class="sl">Médian</div><div class="sv" style="color:var(--green)">6j</div></div><div class="sc"><div class="sl">Moyen</div><div class="sv" style="color:var(--orange)">22j</div></div><div class="sc"><div class="sl">Minimum</div><div class="sv" style="color:var(--green)">1j</div></div><div class="sc"><div class="sl">Maximum</div><div class="sv" style="color:var(--red)">101j</div></div></div>
+      <div class="card" style="margin:0"><div class="ct">Délais par destination</div>
+        <div class="dr"><span class="dc">🇰🇼 Koweït</span><div class="dt"><div class="df dfg" style="width:4%"></div></div><span class="dn" style="color:var(--green)">3.75j</span></div>
+        <div class="dr"><span class="dc">🇩🇯 Djibouti</span><div class="dt"><div class="df dfg" style="width:9%"></div></div><span class="dn" style="color:var(--green)">9j</span></div>
+        <div class="dr"><span class="dc">🇸🇦 Arabie Saoudite</span><div class="dt"><div class="df dfg" style="width:10%"></div></div><span class="dn" style="color:var(--green)">9.5j</span></div>
+        <div class="dr"><span class="dc">🇱🇾 Libye</span><div class="dt"><div class="df dfg" style="width:16%"></div></div><span class="dn" style="color:var(--green)">16j</span></div>
+        <div class="dr"><span class="dc">🇨🇦 Canada</span><div class="dt"><div class="df dfo" style="width:23%"></div></div><span class="dn" style="color:var(--orange)">23j</span></div>
+        <div class="dr"><span class="dc">🇸🇳 Sénégal</span><div class="dt"><div class="df dfr" style="width:35%"></div></div><span class="dn" style="color:var(--red)">35j</span></div>
+        <div class="dr"><span class="dc">🇲🇺 Île Maurice</span><div class="dt"><div class="df dfr" style="width:100%"></div></div><span class="dn" style="color:var(--red)">101j</span></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-ramadan">
+      <div class="ph"><div><div class="pt">🌙 Prévisions </div><div class="ps2">Impact saisonnier sur les volumes export</div></div></div>
+      <div class="alb al" style="margin-bottom:14px">ℹ️ Ramadan 2027 prévu en janvier–février. Anticipation recommandée dès octobre 2026.</div>
+      <div class="card"><div class="ct">📊 Volumes mensuels 2025</div>
+        <div class="ram-chart">
+          <div class="rc"><div class="bnum">95k</div><div class="rf high" style="height:40%"></div><div class="rlbl">Jan</div></div>
+          <div class="rc"><div class="bnum">82k</div><div class="rf med" style="height:34%"></div><div class="rlbl">Fév</div></div>
+          <div class="rc"><div class="bnum">420k</div><div class="rf peak" style="height:100%;position:relative"><div class="ram-badge">🌙 RAMADAN</div></div><div class="rlbl">Mar</div></div>
+          <div class="rc"><div class="bnum">380k</div><div class="rf peak" style="height:90%"></div><div class="rlbl">Avr</div></div>
+          <div class="rc"><div class="bnum">120k</div><div class="rf med" style="height:50%"></div><div class="rlbl">Mai</div></div>
+          <div class="rc"><div class="bnum">95k</div><div class="rf med" style="height:40%"></div><div class="rlbl">Jun</div></div>
+          <div class="rc"><div class="bnum">78k</div><div class="rf low" style="height:32%"></div><div class="rlbl">Jul</div></div>
+          <div class="rc"><div class="bnum">65k</div><div class="rf low" style="height:27%"></div><div class="rlbl">Aoû</div></div>
+          <div class="rc"><div class="bnum">72k</div><div class="rf low" style="height:30%"></div><div class="rlbl">Sep</div></div>
+          <div class="rc"><div class="bnum">105k</div><div class="rf med" style="height:44%"></div><div class="rlbl">Oct</div></div>
+          <div class="rc"><div class="bnum">115k</div><div class="rf med" style="height:48%"></div><div class="rlbl">Nov</div></div>
+          <div class="rc"><div class="bnum">130k</div><div class="rf high" style="height:55%"></div><div class="rlbl">Déc</div></div>
+        </div>
+      </div>
+      <div class="sg g3"><div class="sc"><div class="sl">Pic Ramadan T1 2025</div><div class="sv" style="color:var(--gold)">800k€</div><div class="ss"><span class="badge bo">+340% vs base</span></div></div><div class="sc"><div class="sl">Anticipation recommandée</div><div class="sv" style="font-size:14px">3 mois avant</div></div><div class="sc"><div class="sl">Marchés concernés</div><div class="sv" style="font-size:14px">Moyen-Orient</div></div></div>
+    </div>
+
+    <div class="page" id="page-production">
+      <div class="pt" style="margin-bottom:14px">🏭 Suivi de production</div>
+      <div class="sg g4"><div class="sc"><div class="sl">En production</div><div class="sv" style="color:var(--blue)">2</div></div><div class="sc"><div class="sl">Prêtes</div><div class="sv" style="color:var(--green)">1</div></div><div class="sc"><div class="sl">Stock sécurité</div><div class="sv" style="color:var(--green)">+5%</div></div><div class="sc"><div class="sl">DLC moyenne</div><div class="sv">18 mois</div></div></div>
+      <div class="card" style="margin:0"><div class="ct">EXP-2026-031 — En cours</div>
+        <div class="pstep done"><div class="pnum done">1</div><div><div style="font-size:13px;font-weight:600">Confirmation commande</div><div style="font-size:12px;color:var(--text2)">25 mai 2026</div></div></div>
+        <div class="pstep done"><div class="pnum done">2</div><div><div style="font-size:13px;font-weight:600">Confirmation date chargement</div><div style="font-size:12px;color:var(--text2)">Booking CMA CGM · 27 mai 2026</div></div></div>
+        <div class="pstep active"><div class="pnum active">3</div><div><div style="font-size:13px;font-weight:600">Production en cours</div><div style="font-size:12px;color:var(--text2)">J-3 avant chargement · En cours</div></div></div>
+        <div class="pstep pend"><div class="pnum pend">4</div><div><div style="font-size:13px;font-weight:600">Contrôle qualité CACQE</div><div style="font-size:12px;color:var(--text2)">Planifié</div></div></div>
+        <div class="pstep pend"><div class="pnum pend">5</div><div><div style="font-size:13px;font-weight:600">Palettisation + stock sécurité +5%</div><div style="font-size:12px;color:var(--text2)">Planifié</div></div></div>
+        <div class="pstep pend"><div class="pnum pend">6</div><div><div style="font-size:13px;font-weight:600">Chargement & départ</div><div style="font-size:12px;color:var(--text2)">02 juin 2026 · Port d'Alger</div></div></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-routing">
+      <div class="pt" style="margin-bottom:8px">🤖 Smart Routing</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:14px">Recommandation armateur optimale par destination.</div>
+      <div class="sg g2">
+        <div class="card" style="margin:0"><div class="ct">🎯 Paramètres</div>
+          <div class="fg"><label class="flbl">Destination</label><select id="rtd" onchange="calcR()"><option>Arabie Saoudite</option><option>Koweït</option><option>Djibouti</option><option>Canada</option><option>Île Maurice</option><option>Libye</option></select></div>
+          <div class="fg"><label class="flbl">Produit</label><select><option>Crème Noisette 700g</option><option>Pâte à Tartiner 700g</option></select></div>
+          <div class="fg"><label class="flbl">Priorité</label><select id="rtp" onchange="calcR()"><option>Délai le plus court</option><option>Coût le plus bas</option><option>Équilibre</option></select></div>
+          <button class="btn bg-btn" onclick="calcR()">🤖 Calculer</button>
+        </div>
+        <div class="card" style="margin:0" id="rr"><div class="ct">✅ Recommandations</div>
+          <div class="rtcard sel"><div class="rctop"><div class="rcname">🏆 CMA CGM — RECOMMANDÉ</div><div class="rcsc">94/100</div></div><div class="rcrow"><span>⏱ 8-10j</span><span>💰 2 800€</span><span>📦 CPT</span></div></div>
+          <div class="rtcard"><div class="rctop"><div class="rcname">Hapag-Lloyd</div><div class="rcsc" style="color:var(--blue)">78/100</div></div><div class="rcrow"><span>⏱ 10-12j</span><span>💰 2 500€</span><span>📦 FOB</span></div></div>
+          <div style="margin-top:8px;padding:8px 10px;border-radius:var(--r);background:var(--bbg);font-size:11px;color:#93c5fd">ℹ️ Production recommandée : J-3 avant chargement</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-operateurs">
+      <div class="pt" style="margin-bottom:14px">👥 Gestion des opérateurs</div>
+      <div class="card" style="margin:0"><table class="tbl"><thead><tr><th>Opérateur</th><th>Fonction</th><th>Marchés</th><th>Ops</th><th>Performance</th><th>Contact</th></tr></thead><tbody>
+        <tr><td><strong>BOUILEF Radia</strong></td><td>Responsable Import-Export</td><td>🇸🇦🇰🇼🇩🇯🇱🇾</td><td>38</td><td><span class="sp spa">A · 92%</span></td><td><button class="btn xs" onclick="showP('messages')">💬</button></td></tr>
+        <tr><td><strong>OUZLIFI Amine</strong></td><td>Directeur Export</td><td>Tous marchés</td><td>65</td><td><span class="sp spa">A+ · 96%</span></td><td><button class="btn xs" onclick="showP('messages')">💬</button></td></tr>
+        <tr><td><strong>YDRI Tahar</strong></td><td>Directeur RH</td><td>Support</td><td>—</td><td><span class="sp spb">B+ · 80%</span></td><td><button class="btn xs" onclick="showP('messages')">💬</button></td></tr>
+      </tbody></table></div>
+    </div>
+
+    <div class="page" id="page-nouveaux">
+      <div class="ph"><div><div class="pt">🌐 Nouveaux marchés cibles</div><div class="ps2">Stratégie de diversification 2026-2027</div></div></div>
+      <div class="mkt-grid">
+        <div class="mkt-card"><div class="mkt-flag">🇮🇩</div><div class="mkt-name">Indonésie</div><div class="mkt-pop">278M hab · Marché halal n°1 mondial</div><div class="mkt-bar"><div class="mkt-fill" style="width:85%"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2)"><span>Potentiel : Très élevé</span><span class="badge bb">Priorité 1</span></div></div>
+        <div class="mkt-card"><div class="mkt-flag">🇧🇷</div><div class="mkt-name">Brésil</div><div class="mkt-pop">215M hab · Fort marché pâte à tartiner</div><div class="mkt-bar"><div class="mkt-fill" style="width:72%"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2)"><span>Potentiel : Élevé</span><span class="badge bb">Priorité 1</span></div></div>
+        <div class="mkt-card"><div class="mkt-flag">🇹🇷</div><div class="mkt-name">Turquie</div><div class="mkt-pop">85M hab · Proximité culturelle</div><div class="mkt-bar"><div class="mkt-fill" style="width:78%"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2)"><span>Potentiel : Élevé</span><span class="badge bg">Priorité 2</span></div></div>
+        <div class="mkt-card"><div class="mkt-flag">🇰🇷</div><div class="mkt-name">Corée du Sud</div><div class="mkt-pop">52M hab · Pouvoir d'achat élevé</div><div class="mkt-bar"><div class="mkt-fill" style="width:60%"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2)"><span>Potentiel : Moyen</span><span class="badge bg">Priorité 2</span></div></div>
+        <div class="mkt-card"><div class="mkt-flag">🇷🇺</div><div class="mkt-name">Russie</div><div class="mkt-pop">145M hab · Marché pâte à tartiner</div><div class="mkt-bar"><div class="mkt-fill" style="width:45%"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2)"><span>Potentiel : Moyen</span><span class="badge bo">Priorité 3</span></div></div>
+        <div class="mkt-card" style="border:1px dashed var(--border2);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer" onclick="alert('Ajouter un marché cible')"><div style="font-size:28px;margin-bottom:6px">➕</div><div style="font-size:12px;color:var(--text2)">Ajouter un marché</div></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-rapport">
+      <div class="pt" style="margin-bottom:14px">📄 Rapport mensuel — Mai 2026</div>
+      <div class="sg g4"><div class="sc"><div class="sl">Opérations</div><div class="sv">5</div></div><div class="sc"><div class="sl">CA généré</div><div class="sv" style="color:var(--green)">286k€</div></div><div class="sc"><div class="sl">Taux service</div><div class="sv" style="color:var(--orange)">80%</div></div><div class="sc"><div class="sl">Alertes</div><div class="sv" style="color:var(--red)">3</div></div></div>
+      <div style="display:flex;gap:8px"><button class="btn bg-btn" onclick="alert('PDF généré!')">⬇ Télécharger PDF</button><button class="btn" onclick="alert('Envoyé!')">📧 Email</button></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let isDark=true,mod='portal',sbC=false,npO=false;
+function doLogin(){document.getElementById('login').classList.add('hidden');if(document.querySelector('.role-btn.active').textContent.includes('Export'))switchMod('dashboard',document.querySelectorAll('.tab')[1]);}
+function doLogout(){if(confirm('Se déconnecter ?'))document.getElementById('login').classList.remove('hidden');}
+function setRole(el){document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');}
+function switchMod(m,btn){mod=m;document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');document.getElementById('sbp').style.display=m==='portal'?'flex':'none';document.getElementById('sbd').style.display=m==='dashboard'?'flex':'none';showP(m==='portal'?'expeditions':'kpi');}
+function showP(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const p=document.getElementById('page-'+id);if(p)p.classList.add('active');document.querySelectorAll('.sitem').forEach(s=>s.classList.remove('active'));const si=document.getElementById('si-'+id)||document.getElementById('si-dash-'+id);if(si)si.classList.add('active');closeNP();}
+function showDetail(exp){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-detail-'+exp).classList.add('active');document.querySelectorAll('.sitem').forEach(s=>s.classList.remove('active'));const si=document.getElementById('si-expeditions');if(si)si.classList.add('active');}
+function toggleDark(){isDark=!isDark;document.body.classList.toggle('light',!isDark);document.getElementById('dkbtn').textContent=isDark?'☀️ Light':'🌙 Dark';}
+function toggleSidebar(){sbC=!sbC;document.querySelectorAll('.sidebar').forEach(s=>s.classList.toggle('collapsed',sbC));}
+function toggleNotif(){npO=!npO;document.getElementById('npanel').classList.toggle('open',npO);}
+function closeNP(){npO=false;document.getElementById('npanel').classList.remove('open');}
+function filterExp(v){document.querySelectorAll('#etbl tbody tr').forEach(r=>{r.style.display=r.textContent.toLowerCase().includes(v.toLowerCase())?'':'none';});}
+function sendM(){const inp=document.getElementById('msgi');if(!inp.value.trim())return;const mb=document.querySelector('.mb');const d=document.createElement('div');d.style.alignSelf='flex-end';d.innerHTML=`<div class="bub bo2">${inp.value}</div><div class="bt" style="color:var(--text3);font-size:10px;text-align:right">Vous · maintenant</div>`;mb.appendChild(d);inp.value='';mb.scrollTop=mb.scrollHeight;setTimeout(()=>{const r=document.createElement('div');r.style.alignSelf='flex-start';r.innerHTML=`<div class="bub bi">Bien reçu, nous traitons votre demande.</div><div class="bt" style="color:var(--text3);font-size:10px">Service Export</div>`;mb.appendChild(r);mb.scrollTop=mb.scrollHeight;},1200);}
+const rdata={'Arabie Saoudite':[{n:'🏆 CMA CGM',s:94,d:'8-10j',f:'2 800€',i:'CPT'},{n:'Hapag-Lloyd',s:78,d:'10-12j',f:'2 500€',i:'FOB'}],'Koweït':[{n:'🏆 Hapag-Lloyd',s:92,d:'4-6j',f:'2 400€',i:'CPT'},{n:'Maersk',s:75,d:'6-8j',f:'2 100€',i:'FOB'}],'Djibouti':[{n:'🏆 CMA CGM',s:90,d:'8-10j',f:'2 600€',i:'CPT'},{n:'Hapag-Lloyd',s:82,d:'9-12j',f:'2 300€',i:'FOB'}],'Canada':[{n:'🏆 Maersk',s:72,d:'22-25j',f:'4 200€',i:'CFR'},{n:'CMA CGM',s:68,d:'24-28j',f:'4 500€',i:'CPT'}],'Île Maurice':[{n:'⚠️ Arkas',s:32,d:'85-101j',f:'3 800€',i:'CFR'},{n:'Maersk',s:28,d:'80-95j',f:'4 100€',i:'FOB'}],'Libye':[{n:'🏆 Arkas routier',s:85,d:'14-18j',f:'1 800€',i:'FOB'},{n:'Transport direct',s:80,d:'12-16j',f:'1 500€',i:'FOB'}]};
+function calcR(){const d=document.getElementById('rtd').value;const opts=rdata[d]||rdata['Arabie Saoudite'];document.getElementById('rr').innerHTML='<div class="ct">✅ Recommandations pour '+d+'</div>'+opts.map((o,i)=>`<div class="rtcard ${i===0?'sel':''}"><div class="rctop"><div class="rcname">${o.n} ${i===0?'— RECOMMANDÉ':''}</div><div class="rcsc" style="color:${i===0?'var(--green)':'var(--blue)'}">${o.s}/100</div></div><div class="rcrow"><span>⏱ ${o.d}</span><span>💰 ${o.f}/20ft</span><span>📦 ${o.i}</span></div></div>`).join('')+'<div style="margin-top:8px;padding:8px 10px;border-radius:var(--r);background:var(--bbg);font-size:11px;color:#93c5fd">ℹ️ Production recommandée : J-3 avant chargement</div>';}
+document.addEventListener('click',e=>{if(npO&&!e.target.closest('.np')&&!e.target.closest('.ib'))closeNP();});
+
+/* ===== Deep-link / parent-URL sync ===== */
+const DASHBOARD_PAGES=['kpi','marches','delais','ramadan','production','routing','operateurs','nouveaux','rapport'];
+const PORTAL_PAGES=['expeditions','gps','documents','paiements','catalogue','commande','commandes','confirmation','messages','alerts','profil','settings'];
+const DETAIL_PAGES=['detail-exp1','detail-exp2','detail-exp3'];
+function _notifyParent(page){try{parent.postMessage({type:'emei:navigate',page},'*');}catch(_){}}
+const _showP=showP;showP=function(id){_showP(id);_notifyParent(id);};
+const _showDetail=showDetail;showDetail=function(exp){_showDetail(exp);_notifyParent('detail-'+exp);};
+function applyPage(page){
+  if(!page)return;
+  if(DASHBOARD_PAGES.includes(page)){
+    if(mod!=='dashboard'){mod='dashboard';document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===1));document.getElementById('sbp').style.display='none';document.getElementById('sbd').style.display='flex';}
+    _showP(page);
+  } else if(PORTAL_PAGES.includes(page)){
+    if(mod!=='portal'){mod='portal';document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===0));document.getElementById('sbp').style.display='flex';document.getElementById('sbd').style.display='none';}
+    _showP(page);
+  } else if(DETAIL_PAGES.includes(page)){
+    _showDetail(page.replace('detail-',''));
+  }
+}
+window.addEventListener('message',e=>{const d=e.data;if(d&&d.type==='emei:goto'&&d.page){document.getElementById('login').classList.add('hidden');applyPage(d.page);}});
+(function(){const h=(location.hash||'').replace('#','');if(h){document.getElementById('login').classList.add('hidden');applyPage(h);}})();
+
+/* ===== Commandes (stockage local — pas de backend requis) ===== */
+const LS_ORDERS_KEY = 'emei_orders_v1';
+function _loadLS(){
+  try{ const raw=localStorage.getItem(LS_ORDERS_KEY); return raw?JSON.parse(raw):[]; }catch(_){ return []; }
+}
+function _saveLS(arr){
+  try{ localStorage.setItem(LS_ORDERS_KEY, JSON.stringify(arr)); }catch(_){}
+}
+function _genRef(){
+  const d=new Date();
+  const ymd=d.getFullYear().toString().slice(2)+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
+  const rnd=Math.random().toString(36).slice(2,6).toUpperCase();
+  return 'CMD-'+ymd+'-'+rnd;
+}
+let _orders=[];
+function fmtDate(iso){try{return new Date(iso).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'});}catch(_){return iso;}}
+function statusBadge(s){const map={'En attente':'bo','Confirmée':'bb','En préparation':'bp','Expédiée':'bg'};return '<span class="badge '+(map[s]||'bgr')+'">'+s+'</span>';}
+async function fetchOrders(){
+  _orders = _loadLS();
+  renderCommandes();
+}
+function renderCommandes(){
+  const orders=_orders;
+  const tbody=document.querySelector('#cmdTbl tbody');
+  const empty=document.getElementById('cmdEmpty');
+  const tblWrap=document.getElementById('cmdTbl').parentElement;
+  const sum=document.getElementById('cmdSummary');
+  const cnt=document.getElementById('cmdCnt');
+  if(cnt){if(orders.length){cnt.textContent=orders.length;cnt.style.display='';}else{cnt.style.display='none';}}
+  if(!orders.length){if(tblWrap)tblWrap.style.display='none';if(empty)empty.style.display='';if(sum)sum.textContent='Aucune commande envoyée';return;}
+  if(tblWrap)tblWrap.style.display='';if(empty)empty.style.display='none';
+  if(sum)sum.textContent=orders.length+' commande'+(orders.length>1?'s':'')+' · '+orders.filter(o=>o.statut!=='Expédiée').length+' en cours';
+  tbody.innerHTML=orders.map(o=>`<tr><td class="cl"><strong>${o.ref}</strong></td><td>${fmtDate(o.created_at)}</td><td>${o.produit} · ${o.format}<div style="font-size:11px;color:var(--text3)">${o.palettes} palettes · ${o.conteneur}</div></td><td>${o.destination}</td><td>${o.conteneur}</td><td>${o.incoterm}</td><td>${statusBadge(o.statut)}</td><td><button class="btn xs" onclick="cancelOrder('${o.ref}')" title="Annuler">✕</button></td></tr>`).join('');
+}
+async function cancelOrder(ref){
+  if(!confirm('Annuler la commande '+ref+' ?'))return;
+  _orders = _loadLS().filter(o=>o.ref!==ref);
+  _saveLS(_orders);
+  toast('Commande '+ref+' annulée','warn');
+  renderCommandes();
+}
+
+function toast(msg,kind){
+  let t=document.getElementById('toastBox');
+  if(!t){t=document.createElement('div');t.id='toastBox';t.style.cssText='position:fixed;top:60px;right:16px;z-index:1000;display:flex;flex-direction:column;gap:8px;pointer-events:none';document.body.appendChild(t);}
+  const c=document.createElement('div');
+  const colors={ok:'var(--green)',warn:'var(--orange)',err:'var(--red)',info:'var(--blue)'};
+  const bg={ok:'var(--gbg)',warn:'var(--obg)',err:'var(--rbg)',info:'var(--bbg)'};
+  const k=kind||'ok';
+  c.style.cssText='border:1px solid '+colors[k]+';border-left:3px solid '+colors[k]+';color:var(--text);padding:10px 14px;border-radius:var(--r);box-shadow:var(--sh);font-size:13px;min-width:240px;max-width:340px;backdrop-filter:blur(10px);background:'+bg[k]+';pointer-events:auto';
+  c.textContent=msg;t.appendChild(c);
+  setTimeout(()=>{c.style.transition='opacity .3s,transform .3s';c.style.opacity='0';c.style.transform='translateX(20px)';setTimeout(()=>c.remove(),300);},3500);
+}
+async function submitOrder(){
+  const payload={
+    produit:document.getElementById('co_prod').value,
+    format:document.getElementById('co_fmt').value,
+    palettes:parseInt(document.getElementById('co_pal').value,10)||1,
+    conteneur:document.getElementById('co_cnt').value,
+    destination:document.getElementById('co_dst').value,
+    incoterm:document.getElementById('co_inc').value,
+    paiement:document.getElementById('co_pay').value,
+    notes:document.getElementById('co_notes').value||null,
+  };
+  const btn=event&&event.target;const oldTxt=btn&&btn.textContent;
+  if(btn){btn.disabled=true;btn.textContent='⏳ Envoi...';}
+  try{
+    const order = Object.assign({
+      ref:_genRef(),
+      created_at:new Date().toISOString(),
+      statut:'En attente'
+    }, payload);
+    const arr = _loadLS();
+    arr.unshift(order);
+    _saveLS(arr);
+    const cr=document.getElementById('confRef');if(cr)cr.textContent=order.ref;
+    toast('✅ Commande '+order.ref+' enregistrée — '+order.destination,'ok');
+    const n=document.getElementById('co_notes');if(n)n.value='';
+    await fetchOrders();
+    showP('confirmation');
+  }catch(e){console.error(e);toast('❌ Échec : '+e.message,'err');}
+  finally{if(btn){btn.disabled=false;btn.textContent=oldTxt;}}
+}
+
+async function logout(){
+  try{localStorage.removeItem(SB_STORAGE_KEY);}catch(_){}
+  try{window.top.location.href='/login';}catch(_){location.href='/login';}
+}
+window.logout=logout;
+// Hook into navigation: refresh orders when entering the page
+const _origShowP=showP;showP=function(id){_origShowP(id);if(id==='commandes')fetchOrders();};
+// initial fetch
+fetchOrders();
+
+</script>
+</body>
+</html>
